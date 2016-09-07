@@ -7,16 +7,54 @@
 //
 
 #import "AppDelegate.h"
-
+#import "ETPush.h"
 @interface AppDelegate ()
 
 @end
+
+static NSString *kETAppID_Debug       = @"Debug_AppID_From_MarketingCloud_App_Centre"; // uses Sandbox APNS for debug builds
+static NSString *kETAccessToken_Debug = @"Debug_AccessToken_From_MarketingCloud_App_Centre";
+static NSString *kETAppID_Prod        = @"Prod_AppID_From_MarketingCloud_App_Centre";       // uses Production APNS
+static NSString *kETAccessToken_Prod  = @"Prod_AccessToken_From_MarketingCloud_App_Centre";
 
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    
+    BOOL successful = NO;
+    NSError *error = nil;
+    
+    #ifdef DEBUG
+        // Set to YES to enable logging while debugging
+        [ETPush setETLoggerToRequiredState:YES];
+    
+        // configure and set initial settings of the JB4ASDK
+        successful = [[ETPush pushManager] configureSDKWithAppID:kETAppID_Debug
+                                              andAccessToken:kETAccessToken_Debug
+                                               withAnalytics:YES
+                                         andLocationServices:YES       // ONLY SET TO YES IF PURCHASED AND USING GEOFENCE CAPABILITIES
+                                        andProximityServices:NO       // ONLY SET TO YES IF YOU ARE PART OF THE BEACON BETA PROGRAM
+                                               andCloudPages:NO       // ONLY SET TO YES IF PURCHASED AND USING CLOUDPAGES
+                                             withPIAnalytics:YES
+                                                       error:&error];
+    
+    NSLog(@"in DEBUG");
+    #else
+        // configure and set initial settings of the JB4ASDK
+        successful = [[ETPush pushManager] configureSDKWithAppID:kETAppID_Prod
+                                              andAccessToken:kETAccessToken_Prod
+                                               withAnalytics:YES
+                                         andLocationServices:YES       // ONLY SET TO YES IF  AND USING GEOFENCE CAPABILITIES
+                                        andProximityServices:YES       // ONLY SET TO YES IF YOU ARE PART OF THE BEACON BETA PROGRAM
+                                               andCloudPages:YES       // ONLY SET TO YES IF PURCHASED AND USING CLOUDPAGES
+                                             withPIAnalytics:YES
+                                                       error:&error];
+    
+        NSLog(@"Not in DEBUG");
+    
+    #endif
     return YES;
 }
 
